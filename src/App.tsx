@@ -11,7 +11,7 @@ function App() {
   const services = useMemo(() => loadServices(), []);
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/pages-orginiser">
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <Header
           searchQuery={searchQuery}
