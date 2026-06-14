@@ -1,0 +1,336 @@
+services:
+  customer-api:
+    name: Customer API
+    description: REST API for customer management and authentication
+    group: Applications
+    tags:
+      - api
+      - customers
+      - authentication
+    repos:
+      - name: customer-api
+        url: https://github.com/company/customer-api
+        branch: main
+    docs:
+      - name: API Documentation
+        url: https://docs.company.com/customer-api
+    environments:
+      dev:
+        argocd: https://argocd.company.com/applications/customer-api-dev
+        cluster: dev-eks
+        namespace: customer-api
+        health: healthy
+        sync: synced
+      staging:
+        argocd: https://argocd.company.com/applications/customer-api-staging
+        cluster: staging-eks
+        namespace: customer-api
+        health: healthy
+        sync: synced
+      prod:
+        argocd: https://argocd.company.com/applications/customer-api-prod
+        cluster: prod-eks
+        namespace: customer-api
+        health: healthy
+        sync: synced
+    dependsOn:
+      - postgres
+      - redis
+      - external-secrets
+
+  payments-api:
+    name: Payments API
+    description: Payment processing and transaction management service
+    group: Applications
+    tags:
+      - api
+      - payments
+      - fintech
+    repos:
+      - name: payments-api
+        url: https://github.com/company/payments-api
+        branch: main
+    docs:
+      - name: API Documentation
+        url: https://docs.company.com/payments-api
+    environments:
+      dev:
+        argocd: https://argocd.company.com/applications/payments-api-dev
+        cluster: dev-eks
+        namespace: payments-api
+        health: healthy
+        sync: synced
+      staging:
+        argocd: https://argocd.company.com/applications/payments-api-staging
+        cluster: staging-eks
+        namespace: payments-api
+        health: progressing
+        sync: synced
+      prod:
+        argocd: https://argocd.company.com/applications/payments-api-prod
+        cluster: prod-eks
+        namespace: payments-api
+        health: healthy
+        sync: synced
+    dependsOn:
+      - postgres
+      - kafka
+      - external-secrets
+
+  order-service:
+    name: Order Service
+    description: Order processing and fulfillment service
+    group: Applications
+    tags:
+      - microservice
+      - orders
+      - ecommerce
+    repos:
+      - name: order-service
+        url: https://github.com/company/order-service
+    environments:
+      dev:
+        argocd: https://argocd.company.com/applications/order-service-dev
+        cluster: dev-eks
+        namespace: orders
+        health: healthy
+        sync: synced
+      prod:
+        argocd: https://argocd.company.com/applications/order-service-prod
+        cluster: prod-eks
+        namespace: orders
+        health: healthy
+        sync: out-of-sync
+    dependsOn:
+      - postgres
+      - kafka
+      - customer-api
+      - payments-api
+
+  frontend-app:
+    name: Frontend Application
+    description: Customer-facing web application built with React
+    group: Applications
+    tags:
+      - frontend
+      - react
+      - web
+    repos:
+      - name: frontend-app
+        url: https://github.com/company/frontend-app
+    docs:
+      - name: Component Library
+        url: https://storybook.company.com
+    environments:
+      dev:
+        argocd: https://argocd.company.com/applications/frontend-dev
+        cluster: dev-eks
+        namespace: frontend
+        health: healthy
+        sync: synced
+      staging:
+        argocd: https://argocd.company.com/applications/frontend-staging
+        cluster: staging-eks
+        namespace: frontend
+        health: healthy
+        sync: synced
+      prod:
+        argocd: https://argocd.company.com/applications/frontend-prod
+        cluster: prod-eks
+        namespace: frontend
+        health: degraded
+        sync: synced
+    dependsOn:
+      - customer-api
+      - payments-api
+      - order-service
+
+  postgres:
+    name: PostgreSQL
+    description: Primary relational database cluster
+    group: Infrastructure
+    tags:
+      - database
+      - postgres
+      - storage
+    repos:
+      - name: postgres-charts
+        url: https://github.com/company/infrastructure
+    environments:
+      dev:
+        argocd: https://argocd.company.com/applications/postgres-dev
+        cluster: dev-eks
+        namespace: databases
+        health: healthy
+        sync: synced
+      staging:
+        argocd: https://argocd.company.com/applications/postgres-staging
+        cluster: staging-eks
+        namespace: databases
+        health: healthy
+        sync: synced
+      prod:
+        argocd: https://argocd.company.com/applications/postgres-prod
+        cluster: prod-eks
+        namespace: databases
+        health: healthy
+        sync: synced
+
+  redis:
+    name: Redis
+    description: In-memory cache and session store
+    group: Infrastructure
+    tags:
+      - cache
+      - redis
+      - storage
+    repos:
+      - name: redis-charts
+        url: https://github.com/company/infrastructure
+    environments:
+      dev:
+        argocd: https://argocd.company.com/applications/redis-dev
+        cluster: dev-eks
+        namespace: caching
+        health: healthy
+        sync: synced
+      prod:
+        argocd: https://argocd.company.com/applications/redis-prod
+        cluster: prod-eks
+        namespace: caching
+        health: healthy
+        sync: synced
+
+  kafka:
+    name: Apache Kafka
+    description: Event streaming platform for asynchronous messaging
+    group: Infrastructure
+    tags:
+      - kafka
+      - messaging
+      - events
+    repos:
+      - name: kafka-charts
+        url: https://github.com/company/infrastructure
+    environments:
+      dev:
+        argocd: https://argocd.company.com/applications/kafka-dev
+        cluster: dev-eks
+        namespace: messaging
+        health: healthy
+        sync: synced
+      prod:
+        argocd: https://argocd.company.com/applications/kafka-prod
+        cluster: prod-eks
+        namespace: messaging
+        health: healthy
+        sync: synced
+
+  external-secrets:
+    name: External Secrets Operator
+    description: Kubernetes operator for managing secrets from external providers
+    group: Platform
+    tags:
+      - security
+      - secrets
+      - kubernetes
+    repos:
+      - name: external-secrets-config
+        url: https://github.com/company/platform
+    docs:
+      - name: Documentation
+        url: https://external-secrets.io
+    environments:
+      dev:
+        argocd: https://argocd.company.com/applications/external-secrets-dev
+        cluster: dev-eks
+        namespace: external-secrets
+        health: healthy
+        sync: synced
+      prod:
+        argocd: https://argocd.company.com/applications/external-secrets-prod
+        cluster: prod-eks
+        namespace: external-secrets
+        health: healthy
+        sync: synced
+
+  monitoring-stack:
+    name: Monitoring Stack
+    description: Prometheus, Grafana, and Alertmanager for observability
+    group: Monitoring
+    tags:
+      - monitoring
+      - prometheus
+      - grafana
+    repos:
+      - name: monitoring-stack
+        url: https://github.com/company/monitoring
+    docs:
+      - name: Runbooks
+        url: https://runbooks.company.com
+    environments:
+      dev:
+        argocd: https://argocd.company.com/applications/monitoring-dev
+        cluster: dev-eks
+        namespace: monitoring
+        health: healthy
+        sync: synced
+      prod:
+        argocd: https://argocd.company.com/applications/monitoring-prod
+        cluster: prod-eks
+        namespace: monitoring
+        health: healthy
+        sync: synced
+
+  ingress-nginx:
+    name: Ingress NGINX
+    description: Kubernetes ingress controller for routing external traffic
+    group: Platform
+    tags:
+      - ingress
+      - networking
+      - kubernetes
+    repos:
+      - name: ingress-config
+        url: https://github.com/company/platform
+    environments:
+      dev:
+        argocd: https://argocd.company.com/applications/ingress-dev
+        cluster: dev-eks
+        namespace: ingress-nginx
+        health: healthy
+        sync: synced
+      prod:
+        argocd: https://argocd.company.com/applications/ingress-prod
+        cluster: prod-eks
+        namespace: ingress-nginx
+        health: healthy
+        sync: synced
+
+  cert-manager:
+    name: Cert Manager
+    description: Kubernetes certificate management and automation
+    group: Security
+    tags:
+      - security
+      - certificates
+      - tls
+    repos:
+      - name: cert-manager-config
+        url: https://github.com/company/security
+    docs:
+      - name: Documentation
+        url: https://cert-manager.io
+    environments:
+      dev:
+        argocd: https://argocd.company.com/applications/cert-manager-dev
+        cluster: dev-eks
+        namespace: cert-manager
+        health: healthy
+        sync: synced
+      prod:
+        argocd: https://argocd.company.com/applications/cert-manager-prod
+        cluster: prod-eks
+        namespace: cert-manager
+        health: healthy
+        sync: synced
